@@ -1,0 +1,194 @@
+---
+title: "Evaluation of Gender Identity in Autism and Neurodiversity"
+author: "My best self"
+date: "due January 26th 2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Assignment and evaluation 
+Open a new R Markdown file, and call it “GenderIdentity_Autism” and download the database “raw-gender.csv” from https://osf.io/j3gv7/
+ 
+1. Add author name and date to the pdf file that you knit and title your document “Evaluation of Gender Identity in Autism and Neurodiversity”.[^1]
+[^1]: This is to be done by editing the YAML section of the document. 
+ 
+2. In the first paragraph, summarize where you found the data (including the link) and what the goal of the original study was.
+
+3. Format the text mentioning the goal in bold.
+ 
+4. Create a section for the packages that are used in this problem set.
+ 
+5. Import the database, visualize it as you prefer, and summarize the data.[^2]
+[^2] Summarize requires a specific function!
+
+6. Read the legend file at the osf link to understand what the variables in the database mean. Report how many rows (observations) there are in the file and what is the range and the mean of the answers at the question "Do you find it hard to be emotionally close to other people?"[^3]
+[^3] Look at how to do it here in fully replicable terms, aka without human errors involved. 
+
+7. Use the function plot to visualize the frequency of Aspie raters in the sample.
+ 
+8. Download the package ggplot2 to visualize the data and create a graph that shows the frequency of being Aspie across genders.
+ 
+9. Save a figure in png that shows the frequency of being Aspie across genders. Use this blog for directions on how to save the figure at a high resolution. https://www.r-bloggers.com/high-resolution-figures-in-r/
+ 
+10. Create a new graph on the frequency of being OCD across genders.
+
+Each point when correctly completed is worth 1 point. Half points are given if the instruction is only partially completed. 
+
+\newpage
+
+## Introduction
+
+Gender identities that differ from biological sex (non-cisgender identities) appear to be more common in autism and neurodiversity. The study found that part of the non-cisgender identities could be related to having behavioral preferences of the opposite sex, but this failed to explain the higher prevalence in neurodiversity. Non-cisgender identities in neurodiversity could better be explained by having neurodiverse relationship preferences or lacking typical relationship preferences. Being part of the LGBT (Lesbian Gay Bi Transgender) community biased answers to questions about gender identity. 
+
+
+**Neurodiverse non-cisgender people, just like neurodiverse asexual people, might be better off with new communities that focus on the more relevant relationship preference differences rather than on narrow and indirect gender and sexual issues.**
+
+The data used in this report can be found [here](https://osf.io/j3gv7/).
+
+```{r packages, include=FALSE}
+library(dplyr)
+library(ggplot2)
+rawgender <- read.csv("/cloud/project/raw-gender.csv", header=TRUE, sep = ";")
+```
+
+## Summary of Dataset
+
+```{r dataset, include=TRUE}
+str(rawgender, list.len=10)
+summary(rawgender)
+```
+
+
+
+```{r F102, comment = "", include=FALSE}
+F102 <- rawgender$F102
+cat(range(F102))
+cat(mean(F102))
+```
+
+There are `r nrow(rawgender)` subjects in this dataset.
+
+One question asked "Do you find it hard to be emotionally close to other people?". The range of answers to this question was [`r range(F102)`] and the mean was `r mean(F102)`.
+
+\pagebreak
+
+
+The following bar graph shows the frequency of Asperger's diagnoses within the sample.
+
+```{r aspie plot, echo = FALSE}
+aspie = data.frame(table(rawgender$Aspie))
+aspiefreq = aspie$Freq
+barplot(aspiefreq, names.arg = c("Not diagnosed", "Self-Identified", "Diagnosed"), xlab="Asperger's Syndrome Status", ylab = "Frequency", main = "Frequency of Asperger's Syndrome")
+
+```
+
+The following bar graph shows the frequency of Asperger's diagnoses across gender identities.
+
+```{r aspie across gender, echo=FALSE}
+
+#1 = male, 2 = female, 3 = transgender, 4 = agender, 5 = non-binary, 6 = other
+
+gender <- c(rep("male", 3), rep("female", 3), rep("transgender", 3), rep("agender", 3), rep("non-binary", 3), rep("other", 3))
+
+aspie2 <- rep(c("not diagnosed", "self-diagnosed", "diagnosed"), 6)
+
+male <- filter(rawgender, Gender == 1)
+female <- filter(rawgender, Gender == 2)
+transgender <- filter(rawgender, Gender == 3)
+agender <- filter(rawgender, Gender == 4)
+non.binary <- filter(rawgender, Gender == 5)
+other <- filter(rawgender, Gender == 6)
+
+
+male1 <- nrow(filter(male, Aspie == 0))
+male2 <- nrow(filter(male, Aspie == 1))
+male3 <- nrow(filter(male, Aspie == 2))
+female1 <- nrow(filter(female, Aspie == 0))
+female2 <- nrow(filter(female, Aspie == 1))
+female3 <- nrow(filter(female, Aspie == 2))
+transgender1 <- nrow(filter(transgender, Aspie == 0))
+transgender2 <- nrow(filter(transgender, Aspie == 1))
+transgender3 <- nrow(filter(transgender, Aspie == 2))
+agender1 <- nrow(filter(agender, Aspie == 0))
+agender2 <- nrow(filter(agender, Aspie == 1))
+agender3 <- nrow(filter(agender, Aspie == 2))
+non.binary1 <- nrow(filter(non.binary, Aspie == 0))
+non.binary2 <- nrow(filter(non.binary, Aspie == 1))
+non.binary3 <- nrow(filter(non.binary, Aspie == 2))
+other1 <- nrow(filter(other, Aspie == 0))
+other2 <- nrow(filter(other, Aspie == 1))
+other3 <- nrow(filter(other, Aspie == 2))
+
+
+
+value <- c(male1, male2, male3, female1, female2, female3, transgender1, transgender2, transgender3, agender1, agender2, agender3, non.binary1, non.binary2, non.binary3, other1, other2, other3)
+
+data <- data.frame(gender, aspie2, value)
+
+ggplot(data, aes(fill=aspie2, y=value, x=gender)) + 
+    geom_bar(position="stack", stat="identity") +
+  ggtitle("Frequency of Aspeger's Diagnoses Across Genders") +
+  xlab("Gender Identity") +
+  ylab("Frequency") +
+  labs(fill = "Asperger's Diagnosis")
+
+png("Plot.png", width = 7, height = 4, units = 'in', res = 300)
+ggplot(data, aes(fill=aspie2, y=value, x=gender)) + 
+    geom_bar(position="stack", stat="identity") +
+  ggtitle("Frequency of Aspeger's Diagnoses Across Genders") +
+  xlab("Gender Identity") +
+  ylab("Frequency") +
+  labs(fill = "Asperger's Diagnosis")
+dev.off()
+
+
+```
+
+The following bar graph shows the frequency of OCD diagnoses across gender identities.
+
+```{r OCD, echo=FALSE}
+gender <- c(rep("male", 3), rep("female", 3), rep("transgender", 3), rep("agender", 3), rep("non-binary", 3), rep("other", 3))
+
+ocd <- rep(c("not diagnosed", "self-diagnosed", "diagnosed"), 6)
+
+
+
+
+maleocd1 <- nrow(filter(male, OCD == 0))
+maleocd2 <- nrow(filter(male, OCD == 1))
+maleocd3 <- nrow(filter(male, OCD == 2))
+femaleocd1 <- nrow(filter(female, OCD == 0))
+femaleocd2 <- nrow(filter(female, OCD == 1))
+femaleocd3 <- nrow(filter(female, OCD == 2))
+transgenderocd1 <- nrow(filter(transgender, OCD == 0))
+transgenderocd2 <- nrow(filter(transgender, OCD == 1))
+transgenderocd3 <- nrow(filter(transgender, OCD == 2))
+agenderocd1 <- nrow(filter(agender, OCD == 0))
+agenderocd2 <- nrow(filter(agender, OCD == 1))
+agenderocd3 <- nrow(filter(agender, OCD == 2))
+non.binaryocd1 <- nrow(filter(non.binary, OCD == 0))
+non.binaryocd2 <- nrow(filter(non.binary, OCD == 1))
+non.binaryocd3 <- nrow(filter(non.binary, OCD == 2))
+otherocd1 <- nrow(filter(other, OCD == 0))
+otherocd2 <- nrow(filter(other, OCD == 1))
+otherocd3 <- nrow(filter(other, OCD == 2))
+
+
+
+value <- c(maleocd1, maleocd2, maleocd3, femaleocd1, femaleocd2, femaleocd3, transgenderocd1, transgenderocd2, transgenderocd3, agenderocd1, agenderocd2, agenderocd3, non.binaryocd1, non.binaryocd2, non.binaryocd3, otherocd1, otherocd2, otherocd3)
+
+data <- data.frame(gender, ocd, value)
+
+ggplot(data, aes(fill=ocd, y=value, x=gender)) + 
+    geom_bar(position="stack", stat="identity") +
+  ggtitle("Frequency of OCD Diagnoses Across Genders") +
+  xlab("Gender Identity") +
+  ylab("Frequency") +
+  labs(fill = "OCD Diagnosis")
+```
+
+A footnote. [^4]
+[^4]: Work done by Chase Huyler.
