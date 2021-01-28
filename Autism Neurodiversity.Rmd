@@ -1,7 +1,7 @@
 ---
 title: "Evaluation of Gender Identity in Autism and Neurodiversity"
-author: "My best self"
-date: "due January 26th 2020"
+author: "Chase Huyler"
+date: "January 26th 2020"
 output: pdf_document
 ---
 
